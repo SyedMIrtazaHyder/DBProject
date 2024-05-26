@@ -22,6 +22,7 @@ const Login = () => {
   //CheckLogin(email, password);
     if (validLogin.data.message){
       localStorage.setItem('isLoggedIn', true); // Store login state in local storage (for simplicity)
+      localStorage.setItem('currentUser', validLogin.data.user)
       nav('/')
     }
     else{

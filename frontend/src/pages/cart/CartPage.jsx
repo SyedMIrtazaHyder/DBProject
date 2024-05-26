@@ -1,46 +1,61 @@
 import Layout from "../../components/layout/Layout";
 import { Trash } from "lucide-react";
+import { useState, useEffect } from "react"
+import axios from "axios";
 
-const products = [
-  {
-    id: 1,
-    name: "Nike Air Force 1 07 LV8",
-    href: "#",
-    price: "₹47,199",
-    originalPrice: "₹48,900",
-    discount: "5% Off",
-    color: "Orange",
-    size: "8 UK",
-    imageSrc:
-      "https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/54a510de-a406-41b2-8d62-7f8c587c9a7e/air-force-1-07-lv8-shoes-9KwrSk.png",
-  },
-  {
-    id: 2,
-    name: "Nike Blazer Low 77 SE",
-    href: "#",
-    price: "₹1,549",
-    originalPrice: "₹2,499",
-    discount: "38% off",
-    color: "White",
-    leadTime: "3-4 weeks",
-    size: "8 UK",
-    imageSrc:
-      "https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/e48d6035-bd8a-4747-9fa1-04ea596bb074/blazer-low-77-se-shoes-0w2HHV.png",
-  },
-  {
-    id: 3,
-    name: "Nike Air Max 90",
-    href: "#",
-    price: "₹2219 ",
-    originalPrice: "₹999",
-    discount: "78% off",
-    color: "Black",
-    imageSrc:
-      "https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/fd17b420-b388-4c8a-aaaa-e0a98ddf175f/dunk-high-retro-shoe-DdRmMZ.png",
-  },
-];
+var url = 'http://localhost:5000'
 
 const CartPage = () => {
+  const [productData, setProductData] = useState([]); // Set initial empty array
+  const [productDataChanged, setProductDataChanged] = useState(false); // Set initial empty array
+  const [totalPrice, setPrice] = useState(0)
+
+  var user = localStorage.getItem('currentUser')
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await axios.get(url+'/items', {
+        params:{
+          query_type: "Cart Items",
+          user: user,
+        }
+      })
+      console.log(response.data.message)
+      setProductData(response.data.message)
+      setPrice(response.data.totalPrice)
+      //setProductData(response); // Update data state after fetching
+    };
+    fetchData();
+  }, [productDataChanged]); // Em
+
+  const handleDelete = async (ProductID) => {
+    console.log(ProductID)
+    await axios.post(url + '/removeFromCart', {ProductID, user})
+    .then((response) => {
+      console.log('Response from backend:', response.data);
+      setProductDataChanged(!productDataChanged)
+    })
+    .catch((error) => {
+      console.error('Error sending data:', error);
+    });
+  }
+
+  const handleChange = async (ProductID, quantity) => {
+    if (quantity.length > 0){
+      await axios.post(url + '/changeQuantity', {ProductID, user, quantity})
+      .then((response) => {
+        console.log('Response from backend:', response.data);
+        setProductDataChanged(!productDataChanged)
+      })
+      .catch((error) => {
+        console.error('Error sending data:', error);
+      });
+    }
+    else{
+      console.log("Please write valid Quantity")
+    }
+  }
+
+
   return (
     <Layout>
       <div className="container mx-auto px-4 max-w-7xl px-2 lg:px-0">
@@ -57,13 +72,13 @@ const CartPage = () => {
                 Items in your shopping cart
               </h2>
               <ul role="list" className="divide-y divide-gray-200">
-                {products.map((product) => (
-                  <div key={product.id} className="">
+                {productData.map((product) => (
+                  <div key={product.ProductID} className="">
                     <li className="flex py-6 sm:py-6 ">
                       <div className="flex-shrink-0">
                         <img
-                          src={product.imageSrc}
-                          alt={product.name}
+                          src={product.Image_url}
+                          alt={product.Product_Name}
                           className="sm:h-38 sm:w-38 h-24 w-24 rounded-md object-contain object-center"
                         />
                       </div>
@@ -77,57 +92,53 @@ const CartPage = () => {
                                   href={product.href}
                                   className="font-semibold text-black"
                                 >
-                                  {product.name}
+                                  {product.Product_Name}
                                 </a>
                               </h3>
                             </div>
                             <div className="mt-1 flex text-sm">
                               <p className="text-sm text-gray-500">
-                                {product.color}
+                                {product.Product_Type}
                               </p>
-                              {product.size ? (
+                              {product.Brand ? (
                                 <p className="ml-4 border-l border-gray-200 pl-4 text-sm text-gray-500">
-                                  {product.size}
+                                  {product.Brand}
                                 </p>
                               ) : null}
                             </div>
                             <div className="mt-1 flex items-end">
-                              <p className="text-xs font-medium text-gray-500 line-through">
-                                {product.originalPrice}
-                              </p>
                               <p className="text-sm font-medium text-gray-900">
-                                &nbsp;&nbsp;{product.price}
+                                &nbsp;&nbsp;{"$ " + (product.Price.toFixed(2))}
                               </p>
                               &nbsp;&nbsp;
-                              <p className="text-sm font-medium text-green-500">
-                                {product.discount}
-                              </p>
                             </div>
                           </div>
                         </div>
                       </div>
                     </li>
                     <div className="mb-2 flex">
-                      <div className="min-w-24 flex">
-                        <button type="button" className="h-7 w-7">
+                      <div className="min-w-24 flex justify-center">
+                        {/* <button type="button" className="h-7 w-7">
                           -
-                        </button>
+                        </button> */}
                         <input
                           type="text"
                           className="mx-1 h-7 w-9 rounded-md border text-center"
-                          defaultValue={1}
+                          defaultValue={product.Quantity}
+                          onChange={(event) => handleChange(product.ProductID, event.target.value)}
                         />
-                        <button
+                        {/* <button
                           type="button"
                           className="flex h-7 w-7 items-center justify-center"
                         >
                           +
-                        </button>
+                        </button> */}
                       </div>
                       <div className="ml-6 flex text-sm">
                         <button
                           type="button"
                           className="flex items-center space-x-1 px-2 py-1 pl-0"
+                          onClick={() => handleDelete(product.ProductID)}
                         >
                           <Trash size={12} className="text-red-500" />
                           <span className="text-xs font-medium text-red-500">
@@ -154,17 +165,9 @@ const CartPage = () => {
               <div>
                 <dl className=" space-y-1 px-2 py-4">
                   <div className="flex items-center justify-between">
-                    <dt className="text-sm text-gray-800">Price (3 item)</dt>
+                    <dt className="text-sm text-gray-800">Price ({productData.length} item)</dt>
                     <dd className="text-sm font-medium text-gray-900">
-                      ₹ 52,398
-                    </dd>
-                  </div>
-                  <div className="flex items-center justify-between pt-4">
-                    <dt className="flex items-center text-sm text-gray-800">
-                      <span>Discount</span>
-                    </dt>
-                    <dd className="text-sm font-medium text-green-700">
-                      - ₹ 3,431
+                      $ {totalPrice}
                     </dd>
                   </div>
                   <div className="flex items-center justify-between py-4">
@@ -178,7 +181,7 @@ const CartPage = () => {
                       Total Amount
                     </dt>
                     <dd className="text-base font-medium text-gray-900">
-                      ₹ 48,967
+                      $ {totalPrice}
                     </dd>
                   </div>
                 </dl>

@@ -1,9 +1,14 @@
 import Layout from "../../components/layout/Layout";
+import PopUp from "../../components/popup/PopUp"
 import React, { useState, useEffect } from 'react';
+import axios from "axios";
 
+var url = 'http://localhost:5000'
 
 const ProductInfo = () => {
   var cacheProduct = localStorage.getItem('cacheProduct')
+  var user = localStorage.getItem('currentUser')
+  var [itemInCart, setItemInCart] = useState(false)
   // if (!cacheProduct) {
   //   return <p>No Order Selected</p>;
   // }
@@ -12,10 +17,28 @@ const ProductInfo = () => {
 
   useEffect(() => {
     if (cacheProduct) {
-      console.log(cacheProduct)
+      // console.log(cacheProduct)
       setData(JSON.parse(cacheProduct)); // Parse JSON string back to object
     }
+
   }, []);
+  const handleSubmit = async () => {
+    var dataToSend = {data, user}
+    if (!itemInCart){
+      await axios.post(url + '/addToCart', dataToSend)
+      .then((response) => {
+        console.log('Response from backend:', response.data);
+        setItemInCart(true)
+      })
+      .catch((error) => {
+        console.error('Error sending data:', error);
+      });
+    }
+    else{
+      console.log("Item already in Cart")
+    }
+  
+  }
 
   const {
     Brand,
@@ -44,7 +67,7 @@ const ProductInfo = () => {
               <div className="lg:pl-20">
                 <div className="mb-6 ">
                   <h2 className="max-w-xl mb-6 text-xl font-semibold leading-loose tracking-wide text-gray-700 md:text-2xl dark:text-gray-300">
-                    {Product_Name}
+                    {(Brand?Brand + ": " : "") + Product_Name}
                   </h2>
                   <div className="flex flex-wrap items-center mb-6">
                     <ul className="flex mb-4 mr-2 lg:mb-0">
@@ -121,8 +144,9 @@ const ProductInfo = () => {
 
                 <div className="mb-6 " />
                 <div className="flex flex-wrap items-center mb-6">
-                  <button className="w-full px-4 py-3 text-center text-red-600 bg-pink-100 border border-red-600  hover:bg-red-600 hover:text-gray-100 rounded-xl">
-                    Add to cart
+                  <button className="w-full px-4 py-3 text-center text-red-600 bg-pink-100 border border-red-600  hover:bg-red-600 hover:text-gray-100 rounded-xl"
+                  onClick={handleSubmit}>
+                    {itemInCart? "Item already in Cart":"Add to cart"}
                   </button>
                 </div>
               </div>
