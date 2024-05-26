@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SearchBar from "../searchBar/SearchBar";
+import Logo from "../../assets/Logo.jpg"
 
 const Navbar = () => {
   // navList Data
@@ -37,7 +38,7 @@ const Navbar = () => {
 
       {/* Cart */}
       <li>
-        <Link to={"/cart"}>Cart(0)</Link>
+        <Link to={"/cart"}>Cart</Link>
       </li>
     </ul>
   );
@@ -48,9 +49,10 @@ const Navbar = () => {
         {/* left  */}
         <div className="left py-3 lg:py-0">
           <Link to={"/"}>
-            <h2 className=" font-bold text-white text-2xl text-center">
+            {/* <h2 className=" font-bold text-white text-2xl text-center">
             GO 🚚 NOW!
-            </h2>
+            </h2> */}
+              <img src={Logo} alt="Company Logo" className="w-16 h-16 rounded-full" />
           </Link>
         </div>
 
