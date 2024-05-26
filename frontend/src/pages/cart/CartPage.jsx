@@ -1,4 +1,5 @@
 import Layout from "../../components/layout/Layout";
+import { useNavigate } from "react-router-dom";
 import { Trash } from "lucide-react";
 import { useState, useEffect } from "react"
 import axios from "axios";
@@ -9,6 +10,7 @@ const CartPage = () => {
   const [productData, setProductData] = useState([]); // Set initial empty array
   const [productDataChanged, setProductDataChanged] = useState(false); // Set initial empty array
   const [totalPrice, setPrice] = useState(0)
+  const navigate = useNavigate();
 
   var user = localStorage.getItem('currentUser')
   useEffect(() => {
@@ -19,7 +21,7 @@ const CartPage = () => {
           user: user,
         }
       })
-      console.log(response.data.message)
+      console.log(response.data.message.map((item) => {return {"UserID": item.ProductID}}))
       setProductData(response.data.message)
       setPrice(response.data.totalPrice)
       //setProductData(response); // Update data state after fetching
@@ -55,6 +57,19 @@ const CartPage = () => {
     }
   }
 
+  const handleCheckout = async () => {
+    console.log("Checkout")
+    await axios.post(url + '/checkout', {user})
+    .then((response) => {
+      console.log('Response from backend:', response.data);
+      alert("Checkout Successful")
+      navigate('/')
+    })
+    .catch((error) => {
+      console.error('Error sending data:', error);
+    });
+  }
+
 
   return (
     <Layout>
@@ -63,7 +78,7 @@ const CartPage = () => {
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             Shopping Cart
           </h1>
-          <form className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
+          <section className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
             <section
               aria-labelledby="cart-heading"
               className="rounded-lg bg-white lg:col-span-8"
@@ -187,14 +202,15 @@ const CartPage = () => {
                 </dl>
                 <div className="px-2 pb-4 font-medium text-green-700">
                   <div className="flex gap-4 mb-6">
-                    <button className="w-full px-4 py-3 text-center text-gray-100 bg-red-600 border border-transparent dark:border-gray-700 hover:border-red-500 hover:text-red-700 hover:bg-red-100 rounded-xl">
+                    <button className="w-full px-4 py-3 text-center text-gray-100 bg-red-600 border border-transparent dark:border-gray-700 hover:border-red-500 hover:text-red-700 hover:bg-red-100 rounded-xl"
+                    onClick={handleCheckout}>
                       Buy now
                     </button>
                   </div>
                 </div>
               </div>
             </section>
-          </form>
+          </section>
         </div>
       </div>
     </Layout>

@@ -33,13 +33,6 @@ const ProductDetail = () => {
     closeModal();
   };
 
-  const handleDelete = async (ProductID) => {
-    console.log("Deleting Product ", ProductID)
-    const response = await axios.post(url + "/removeItem", {ProductID});
-    console.log(response)
-    setIsOpen(true)
-  }
-
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(url+'/items', {

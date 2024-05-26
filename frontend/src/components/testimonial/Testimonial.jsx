@@ -23,19 +23,16 @@ const Testimonial = () => {
                 <img
                   alt="testimonial"
                   className="w-20 h-20 mb-8 object-cover object-center rounded-full inline-block border-2 border-gray-200 bg-gray-100"
-                  src="https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg"
+                  src="https://media-mct1-1.cdn.whatsapp.net/v/t61.24694-24/439299505_759538876386062_530578184746558772_n.jpg?ccb=11-4&oh=01_Q5AaIMLNyRSVSomOwqYXsPrOCf46zKfXIbbQuPU8kAZGOBA1&oe=666017BF&_nc_sid=e6ed6c&_nc_cat=107"
                 />
                 <p className="leading-relaxed">
-                  Edison bulb retro cloud bread echo park, helvetica stumptown
-                  taiyaki taxidermy 90's cronut +1 kinfolk. Single-origin coffee
-                  ennui shaman taiyaki vape DIY tote bag drinking vinegar cronut
-                  adaptogen squid fanny pack vaporware.
+                  Nothing
                 </p>
                 <span className="inline-block h-1 w-10 rounded bg-pink-500 mt-6 mb-4" />
                 <h2 className="text-gray-900 font-medium title-font tracking-wider text-sm uppercase">
-                  Michael Badar
+                  Badar Husnain Sheiki
                 </h2>
-                <p className="text-gray-500">Senior Product Designer</p>
+                <p className="text-gray-500">CTO</p>
               </div>
             </div>
 
@@ -48,16 +45,14 @@ const Testimonial = () => {
                   src="https://www.newvisiontheatres.com/wp-content/uploads/2023/06/Dwayne-Johnson.jpg"
                 />
                 <p className="leading-relaxed">
-                  Edison bulb retro cloud bread echo park, helvetica stumptown
-                  taiyaki taxidermy 90's cronut +1 kinfolk. Single-origin coffee
-                  ennui shaman taiyaki vape DIY tote bag drinking vinegar cronut
-                  adaptogen squid fanny pack vaporware.
+                  Made Backend and Application Layer. Responsible for intergrating React, Flask and MS SQL container
+                  on Docker, implemented React Hooks and States to make webpages dynamic.
                 </p>
                 <span className="inline-block h-1 w-10 rounded bg-pink-500 mt-6 mb-4" />
                 <h2 className="text-gray-900 font-medium title-font tracking-wider text-sm uppercase">
-                  Badar Sheiki
+                  Syed Muhammad Irtaza Hyder
                 </h2>
-                <p className="text-gray-500">UI Develeoper</p>
+                <p className="text-gray-500">Develeoper</p>
               </div>
             </div>
 
@@ -67,19 +62,16 @@ const Testimonial = () => {
                 <img
                   alt="testimonial"
                   className="w-20 h-20 mb-8 object-cover object-center rounded-full inline-block border-2 border-gray-200 bg-gray-100"
-                  src="https://netstorage-tuko.akamaized.net/images/f396ef07030cca36.jpg?imwidth=900"
+                  src="https://media-mct1-1.cdn.whatsapp.net/v/t61.24694-24/357361215_216947497973684_3322097608587011177_n.jpg?ccb=11-4&oh=01_Q5AaIKll_VF_u7mnyJwxG2a7zs-CXRi3ECcZfjHhj2kKoLvp&oe=66600441&_nc_sid=e6ed6c&_nc_cat=109"
                 />
                 <p className="leading-relaxed">
-                  Edison bulb retro cloud bread echo park, helvetica stumptown
-                  taiyaki taxidermy 90's cronut +1 kinfolk. Single-origin coffee
-                  ennui shaman taiyaki vape DIY tote bag drinking vinegar cronut
-                  adaptogen squid fanny pack vaporware.
+                  Developed React Webpages
                 </p>
                 <span className="inline-block h-1 w-10 rounded bg-pink-500 mt-6 mb-4" />
                 <h2 className="text-gray-900 font-medium title-font tracking-wider text-sm uppercase">
-                  XYZ{" "}
+                  Rafay Munir
                 </h2>
-                <p className="text-gray-500">CTO</p>
+                <p className="text-gray-500">UI Developer</p>
               </div>
             </div>
           </div>

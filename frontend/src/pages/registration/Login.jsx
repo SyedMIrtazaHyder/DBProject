@@ -23,7 +23,12 @@ const Login = () => {
     if (validLogin.data.message){
       localStorage.setItem('isLoggedIn', true); // Store login state in local storage (for simplicity)
       localStorage.setItem('currentUser', validLogin.data.user)
-      nav('/')
+      if (validLogin.data.admin){
+        nav('/admin-dashboard')
+      }
+      else {
+        nav('/')
+      }
     }
     else{
       console.log("Invalid Password or Account Does not Exist")

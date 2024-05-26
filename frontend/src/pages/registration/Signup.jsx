@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {useState} from "react"
 import axios from "axios"
 
@@ -20,11 +21,13 @@ const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+  
+  const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent default form submission behavior
 
     signUpBackend(name, email, password);
+    navigate('/login')
   };
 
   return (

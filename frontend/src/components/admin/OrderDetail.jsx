@@ -14,7 +14,7 @@ const OrderDetail = () => {
     const fetchData = async () => {
       const response = await axios.get(url+'/items', {
         params:{
-          query_type: "Orders"
+          query_type: "SalesInfo"
         }
       })
       for (let i = 0; i < response.data.message.length; i++)
@@ -30,7 +30,7 @@ const OrderDetail = () => {
       <div>
         <div className="py-5">
           {/* text  */}
-          <h1 className=" text-xl text-red-300 font-bold">All Order</h1>
+          <h1 className=" text-xl text-red-300 font-bold">All Sales</h1>
         </div>
 
         {/* table  */}
@@ -38,6 +38,12 @@ const OrderDetail = () => {
         <table className="w-full text-left border border-collapse sm:border-separate border-red-100 text-red-400">
           <tbody>
             <tr>
+            <th
+                scope="col"
+                className="h-12 px-6 text-md border-l first:border-l-0 border-red-100 text-slate-700 bg-slate-100 font-bold fontPara"
+              >
+                Sale ID
+              </th>
               <th
                 scope="col"
                 className="h-12 px-6 text-md border-l first:border-l-0 border-red-100 text-slate-700 bg-slate-100 font-bold fontPara"
@@ -77,9 +83,12 @@ const OrderDetail = () => {
             </tr>
         {/* Use .map to generate table rows */}
             {orders.map((item, index) => {
-              const { User, Product_Name, Price, Quantity, Sales_Profit } = item;
+              const { SalesID, User, Product_Name, Price, Quantity, Sales_Profit } = item;
               return(
               <tr key={index} className="text-red-300">
+                <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-red-100 stroke-slate-500 text-slate-500 ">
+                  {SalesID}
+                </td>
                 <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-red-100 stroke-slate-500 text-slate-500 ">
                   {User}
                 </td>
@@ -115,10 +124,9 @@ const OrderDetail = () => {
               
             </td>
             <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-red-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
-              {total}
             </td>
             <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-red-100 stroke-slate-500 text-slate-500 text-green-500 cursor-pointer ">
-              
+              $$$ {total.toFixed(2)}
             </td>
           </tr>
 

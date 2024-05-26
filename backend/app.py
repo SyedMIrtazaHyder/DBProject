@@ -3,8 +3,7 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
 from sqlalchemy.orm import DeclarativeBase
-import random
-import inspect
+from datetime import datetime
 
 # Initializing flask app
 app = Flask(__name__)
@@ -40,10 +39,7 @@ class Vendor(db.Model):
 class Customer(db.Model):
     __tablename__ = 'Customer'
 
-    CustomerID = db.Column(db.Integer, primary_key=True)
-    Province = db.Column(db.String(50), nullable=False)
-    City = db.Column(db.String(50), nullable=False)
-    Address = db.Column(db.String(150), nullable=False)
+    CustomerID = db.Column(db.Integer, db.ForeignKey('WebsiteUser.UserID'), primary_key=True)
 
 class Product(db.Model):
     __tablename__ = 'Product'
@@ -91,9 +87,15 @@ class Orders(db.Model):
     cart = db.relationship('Cart', backref=db.backref('orders', lazy=True))
     product = db.relationship('Product', backref=db.backref('orders', lazy=True))
 
+class SalesInvoice(db.Model):
+    __tablename__ = 'Sales_Invoice'
+    SalesID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CartID = db.Column(db.Integer, db.ForeignKey('Cart.CartID'), nullable=False)
+    Sell_Time = db.Column(db.DateTime, nullable=False)
+
 # Route for seeing a data
 @app.route('/signup', methods = ['POST'])
-def get_credentials():
+def enter_credentials():
     data = request.get_json()
     name = data.get('name')
     email = data.get('email')
@@ -103,18 +105,17 @@ def get_credentials():
     if WebsiteUser.query.filter_by(Email=email).first():
         print("Account Already Exists")
     else:
-        new_user = WebsiteUser(Name=name, Email=email, Password=password, isVendor=True, isCustomer=True)
+        new_user = WebsiteUser(Name=name, Email=email, Password=password, isVendor=False, isCustomer=True)
         db.session.add(new_user)
         db.session.commit()
 
-        new_vendor = Vendor(VendorID=new_user.UserID)
-        db.session.add(new_vendor)
+        new_customer = Customer(CustomerID=new_user.UserID)
+        db.session.add(new_customer)
         db.session.commit()
 
-        # new_cart = Cart(CartID=random.randint(10000000000, 99999999999), CustomerID=CustomerID, Province=Province,
-        #         City=City, Address=Address)
-        # db.session.add(new_cart)
-        # db.session.commit()
+        new_cart = Cart(CustomerID=new_customer.CustomerID)
+        db.session.add(new_cart)
+        db.session.commit()
 
     # Respond to the client
     return jsonify({'message': 'Data received successfully'}), 200
@@ -123,10 +124,12 @@ def get_credentials():
 def check_credentials():
     email = request.args.get('email')
     password = request.args.get('password')
+    isAdmin = False
     user = 0
     try:
         password_from_db = WebsiteUser.query.filter_by(Email=email).first().Password
         user = WebsiteUser.query.filter_by(Email=email).first().UserID
+        isAdmin = WebsiteUser.query.filter_by(Email=email).first().isVendor
         if password == password_from_db:
             msg = True
         else:
@@ -134,7 +137,7 @@ def check_credentials():
     except AttributeError:
         msg = False
     finally:
-        return jsonify({'message': msg, 'user': user}), 200
+        return jsonify({'message': msg, 'user': user, 'admin': isAdmin}), 200
 
 @app.route('/getUser', methods=['GET'])
 def get_user():
@@ -156,7 +159,7 @@ def get_items():
         return jsonify({'message': [e.to_json() for e in query_results]}), 200
     elif query == "Cart Items":
         CustomerID = request.args.get('user')
-        CartID = db.session.query(Cart).filter(Cart.CustomerID == CustomerID).first().CartID
+        CartID = db.session.query(Cart).filter(Cart.CustomerID == CustomerID).order_by(Cart.CartID.desc()).first().CartID
         #sub_query = [q.ProductID for q in Orders.query.filter_by(CartID=CartID).all()]
         #print(sub_query)
         join_query = db.session.query(Product, Orders.Quantity).join(Orders, (Product.ProductID == Orders.ProductID)).filter_by(CartID=CartID).all()
@@ -166,6 +169,7 @@ def get_items():
         #print(query_results)
         return jsonify({'message': [dict_addition(e[0].to_json(), ['Quantity'], [e[1]]) for e in join_query],
                         'totalPrice': totalprice}), 200
+
     elif query == "All":
         query_results = Product.query.order_by(Product.ProductID).all()
         return jsonify({'message': [e.to_json() for e in query_results]}), 200
@@ -174,20 +178,22 @@ def get_items():
         join_query = db.session.query(Product, Orders.Quantity).join(Orders, (Product.ProductID == Orders.ProductID)).all()
         return jsonify({'message': [dict_addition(e[0].to_json(), ['Quantity'], [e[1]]) for e in join_query]}), 200
     
-    elif query == "Orders":
-        print("Getting ORders")
+    elif query == "SalesInfo":
+        print("Getting Sales")
         results = db.session.query(
+            SalesInvoice.SalesID,
             WebsiteUser.Name,
             Product.Product_Name,
             Orders.Quantity,
             Product.Price,
             (Product.Price * Orders.Quantity).label('Sales_Profit')
-        ).join(Cart, Cart.CustomerID == WebsiteUser.UserID
-        ).join(Orders, Orders.CartID == Cart.CartID
-        ).join(Product, Product.ProductID == Orders.ProductID
-        ).all()
-        #print([dict_addition({}, ['User', 'Product_Name', 'Quantity', 'Price'], res) for res in results])
-        return  jsonify({"message":[dict_addition({}, ['User', 'Product_Name', 'Quantity', 'Price', 'Sales_Profit'], res) for res in results]}), 200
+            ).join(Cart, SalesInvoice.CartID == Cart.CartID
+            ).join(WebsiteUser, Cart.CustomerID == WebsiteUser.UserID
+            ).join(Orders, Orders.CartID == Cart.CartID
+            ).join(Product, Product.ProductID == Orders.ProductID
+            ).all()
+        print([dict_addition({}, ['SalesID', 'User', 'Product_Name', 'Quantity', 'Price', 'Sales_Profit'], res) for res in results])
+        return  jsonify({"message":[dict_addition({}, ['SalesID', 'User', 'Product_Name', 'Quantity', 'Price', 'Sales_Profit'], res) for res in results]}), 200
 
     elif query == "Search":
         search_string = request.args.get('search')
@@ -247,7 +253,7 @@ def add_to_cart():
     CustomerID = data.get("user")
 
     #query to get CARTID via join
-    CartID = db.session.query(Cart).filter(Cart.CustomerID == CustomerID).first().CartID
+    CartID = db.session.query(Cart).filter(Cart.CustomerID == CustomerID).order_by(Cart.CartID.desc()).first().CartID
     print(CartID, ProductID)
 
     new_order = Orders(CartID=CartID, ProductID = ProductID, Quantity = 1)
@@ -263,7 +269,7 @@ def delete_from_cart():
     CustomerID = data.get("user")
 
     #query to get CARTID via join
-    CartID = db.session.query(Cart).filter(Cart.CustomerID == CustomerID).first().CartID
+    CartID = db.session.query(Cart).filter(Cart.CustomerID == CustomerID).order_by(Cart.CartID.desc()).first().CartID
     #print(CartID, ProductID)
 
     order_to_be_removed = db.session.query(Orders).filter(Orders.CartID == CartID,
@@ -282,13 +288,34 @@ def changeQuantity():
     Quantity = data.get("quantity")
 
     #query to get CARTID via join
-    CartID = db.session.query(Cart).filter(Cart.CustomerID == CustomerID).first().CartID
+    CartID = db.session.query(Cart).filter(Cart.CustomerID == CustomerID).order_by(Cart.CartID.desc()).first().CartID
     #print(CartID, ProductID)
     order_update = db.session.query(Orders).filter(Orders.CartID == CartID,
                                                    Orders.ProductID == ProductID).update({'Quantity': Quantity})
     db.session.commit()
     return jsonify({"Msg": "Quantity Successfully Updated"})
 
+@app.route('/checkout', methods=['POST'])
+def checkOut():
+    data = request.get_json()
+    print(data)
+    CustomerID = data.get("user")
+
+    #query to get CARTID via join
+    CartID = db.session.query(Cart).filter(Cart.CustomerID == CustomerID).order_by(Cart.CartID.desc()).first().CartID
+    #print(CartID, ProductID)
+    sell_time = datetime.now()
+    new_sales_invoice = SalesInvoice(
+        CartID= CartID,
+        Sell_Time=sell_time
+        )
+    db.session.add(new_sales_invoice)
+    db.session.commit()
+
+    new_cart = Cart(CustomerID=CustomerID)
+    db.session.add(new_cart)
+    db.session.commit()
+    return jsonify({"Msg": "Successful Checkout"})
 
 # Running app
 if __name__ == '__main__':

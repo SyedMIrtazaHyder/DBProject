@@ -25,11 +25,10 @@ const Navbar = () => {
         <Link to="/signup">Signup</Link>
       )}
       </li>
-
       {/* Admin */}
-      <li>
-        <Link to={"/admin-dashboard"}>Admin</Link> {/* Admin Dashboard */}
-      </li>
+      {/* <li>
+        <Link to={"/admin-dashboard"}>Admin</Link>
+      </li> */}
 
       {/* logout */}
       {/* <li>
@@ -50,7 +49,7 @@ const Navbar = () => {
         <div className="left py-3 lg:py-0">
           <Link to={"/"}>
             <h2 className=" font-bold text-white text-2xl text-center">
-              E-Store
+            GO 🚚 NOW!
             </h2>
           </Link>
         </div>
